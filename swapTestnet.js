@@ -153,13 +153,15 @@ const addressFactorys = [
 ]
 
 const tokenMid = [
+  '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd'
+
   //   '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', // usdc
   // '0x55d398326f99059ff775485246999027b3197955', // usdt
   //   '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c' // wbnb
 ]
 
-const tokenIn = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd' // apala
-const tokenOut = '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd' // busd
+const tokenIn = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd' // usdt
+const tokenOut = '0xFa60D973F7642B748046464e165A65B7323b0DEE' // cake
 
 // const tokenOut = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd' // apala
 // const tokenIn = '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd' // busd
@@ -318,7 +320,7 @@ const main = async () => {
   // const pairAB1 = Pair.fromParallelPairs(
   //   addressFactorys
   //     .map(factory => {
-  //       const data = ecec[factory + tokenIn + tokenMid[1]]
+  //       const data = ecec[factory + tokenIn + tokenMid[0]]
   //       if (data.pairAddress === zeroAddress) return
   //       return data.pair
   //     })
@@ -328,34 +330,37 @@ const main = async () => {
 
   // return
 
-  //   const pairAC1 = Pair.fromSeriesPairs({
-  //     pair0: Pair.fromParallelPairs(
-  //       addressFactorys
-  //         .map(factory => {
-  //           const data = ecec[factory + tokenIn + tokenMid[1]]
-  //           if (data.pairAddress === zeroAddress) return
-  //           return data.pair
-  //         })
-  //         .filter(item => item)
-  //     ),
-  //     pair1: Pair.fromParallelPairs(
-  //       addressFactorys
-  //         .map(factory => {
-  //           const data = ecec[factory + tokenMid[1] + tokenOut]
-  //           if (data.pairAddress === zeroAddress) return
-  //           return data.pair
-  //         })
-  //         .filter(item => item)
-  //     )
-  //   })
+  const pairAC1 = Pair.fromSeriesPairs({
+    pair0: Pair.fromParallelPairs(
+      addressFactorys
+        .map(factory => {
+          const data = ecec[factory + tokenIn + tokenMid[0]]
+          if (data.pairAddress === zeroAddress) return
+          return data.pair
+        })
+        .filter(item => item)
+    ),
+    pair1: Pair.fromParallelPairs(
+      addressFactorys
+        .map(factory => {
+          const data = ecec[factory + tokenMid[0] + tokenOut]
+          if (data.pairAddress === zeroAddress) return
+          return data.pair
+        })
+        .filter(item => item)
+    )
+  })
 
   //   const pairAll = Pair.fromParallelPairs([pairAC, pairAC1])
 
   //   // console.log('🚀 ~ main ~ pairAC1:', pairAll)
   //   // console.log('🚀 ~ main ~ pairAll:', pairAll.caculateAmountOut(10*10**18))
 
-  const dada = pairAC.getRouter(0.1 * 10 ** 18)
+  const dada = pairAC1.getRouter(0.1 * 10 ** 18)
+  console.log('🚀 ~ main ~ dada:', dada)
   console.log('🚀 ~ main ~ pairAC:', JSON.stringify(dada, null, 4))
+
+  // return
 
   const abiaaaaa = [
     {
@@ -385,25 +390,88 @@ const main = async () => {
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function'
+    },
+    {
+      inputs: [
+        {
+          components: [
+            {
+              internalType: 'uint256',
+              name: 'amountIn',
+              type: 'uint256'
+            },
+            {
+              internalType: 'uint256',
+              name: 'amountOut',
+              type: 'uint256'
+            },
+            {
+              internalType: 'address',
+              name: 'pair',
+              type: 'address'
+            },
+            {
+              internalType: 'address',
+              name: 'token0',
+              type: 'address'
+            },
+            {
+              internalType: 'address',
+              name: 'from',
+              type: 'address'
+            },
+            {
+              internalType: 'address',
+              name: 'to',
+              type: 'address'
+            }
+          ],
+          internalType: 'struct AggregatorLor.swapData[]',
+          name: 'data',
+          type: 'tuple[]'
+        }
+      ],
+      name: 'swapMulti',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
     }
   ]
   const privateKey = 'b367c1164d4042b0a759d5df02c9604bad99b7b104e04bffd375dcdfdc4422b0'
   const address = '0xF1DDB657AC2A3eBfECF16d1a972AA5995D2B6248'
-  const addressRouter = '0xe3a2ba23914806054657534B4423824afdc58026'
+  const addressRouter = '0x9E9b3CBBA901031f646B04e9fC9a2E3448B40335'
 
   const account = web3.eth.accounts.privateKeyToAccount(privateKey)
+  const [pair0] = dada[0]
+  const [pair1] = dada[1]
+  
 
-  const {amountIn, amountOut, token0, provider} = dada[0].pair
+  const {amountIn: amountIn0, amountOut: amountOut0, token0: token00, provider: provider0} = pair0.pair
+  const {amountIn: amountIn1, amountOut: amountOut1, token0: token01, provider: provider1} = pair1.pair
 
   let nonce = await web3.eth.getTransactionCount(address)
   let gasPrice = Number(await web3.eth.getGasPrice()) + 10000
   const contract = new web3.eth.Contract(abiaaaaa, addressRouter)
   const rawTransaction = {
     to: contract._address,
-    data: contract.methods.swap(BigInt(amountIn), BigInt(amountOut),provider, token0).encodeABI(),
+    data: contract.methods.swapMulti([[
+      BigInt(amountIn0),
+      BigInt(amountOut0),
+      provider0,
+      token00,
+      address,
+      addressRouter
+    ], [
+      BigInt(amountIn1),
+      BigInt(amountOut1),
+      provider1,
+      token01,
+      addressRouter,
+      address
+    ]]).encodeABI(),
     gasPrice: gasPrice,
     nonce: nonce,
-    gas: 300000
+    gas: 600000
   }
 
   const signedTransaction = await account.signTransaction(rawTransaction)
@@ -414,3 +482,10 @@ const main = async () => {
 }
 
 main()
+
+// uint256 amountIn;
+//         uint256 amountOut;
+//         address pair;
+//         address token0;
+//         address from;
+//         address to;

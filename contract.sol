@@ -153,9 +153,11 @@ contract AggregatorLor {
         uint256 amountOut;
         address pair;
         address token0;
+        address from;
+        address to;
     }
 
-    function swap(
+    function _swap(
         uint256 amountIn,
         uint256 amountOut,
         address pair,
@@ -165,37 +167,26 @@ contract AggregatorLor {
     ) public {
         IPancakePair pairOkla = IPancakePair(pair);
         address token0Onchain = pairOkla.token0();
-        IERC20(token0).transferFrom(msg.sender, pair, amountIn);
-        if (token0Onchain == token0){
-            pairOkla.swap(0, amountOut, msg.sender, new bytes(0));
+        if (from == address(this)) {
+            IERC20(token0).transfer(pair, amountIn);
+        } else {
+            IERC20(token0).transferFrom(from, pair, amountIn);
         }
-        else {
-            pairOkla.swap(amountOut, 0, msg.sender, new bytes(0));
+        if (token0Onchain == token0) {
+            pairOkla.swap(0, amountOut, to, new bytes(0));
+        } else {
+            pairOkla.swap(amountOut, 0, to, new bytes(0));
         }
     }
 
-    // function swap(
-    //     uint256 amount0Out,
-    //     uint256 amount1Out,
-    //     address to,
-    //     bytes calldata data
-    // ) external;
+    function testTransfer() public pure  {
+        
+    }
 
-    function swapMulti(swapData[] memory data) public pure returns (uint256) {}
-
-    /**
-     * @dev Store value in variable
-     * @param num value to store
-     */
-    // function store(uint256 num) public {
-    //     number = num;
-    // }
-
-    // /**
-    //  * @dev Return value
-    //  * @return value of 'number'
-    //  */
-    // function retrieve() public view returns (uint256) {
-    //     return number;
-    // }
+    function swapMulti(swapData[] memory data) public {
+        for (uint256 i = 0; i < data.length; i++) {
+            swapData memory dadada = data[i];
+            this._swap(dadada.amountIn, dadada.amountOut, dadada.pair, dadada.token0, dadada.from, dadada.to);
+        }
+    }
 }
