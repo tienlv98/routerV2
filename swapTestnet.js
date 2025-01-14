@@ -351,15 +351,16 @@ const main = async () => {
     )
   })
 
-  //   const pairAll = Pair.fromParallelPairs([pairAC, pairAC1])
+  const address = '0xF1DDB657AC2A3eBfECF16d1a972AA5995D2B6248'
+    const pairAll = Pair.fromParallelPairs([pairAC, pairAC1])
 
-  //   // console.log('🚀 ~ main ~ pairAC1:', pairAll)
-  //   // console.log('🚀 ~ main ~ pairAll:', pairAll.caculateAmountOut(10*10**18))
 
-  const dada = pairAC1.getRouter(0.1 * 10 ** 18)
+  const dada = pairAll.getData(0.1 * 10 ** 18,address)
   console.log('🚀 ~ main ~ dada:', dada)
-  console.log('🚀 ~ main ~ pairAC:', JSON.stringify(dada, null, 4))
+  // console.log('🚀 ~ main ~ pairAC:', JSON.stringify(dadaygggg, null, 4))
 
+
+  // return
   // return
 
   const abiaaaaa = [
@@ -438,40 +439,26 @@ const main = async () => {
     }
   ]
   const privateKey = 'b367c1164d4042b0a759d5df02c9604bad99b7b104e04bffd375dcdfdc4422b0'
-  const address = '0xF1DDB657AC2A3eBfECF16d1a972AA5995D2B6248'
+  // const address = '0xF1DDB657AC2A3eBfECF16d1a972AA5995D2B6248'
   const addressRouter = '0x9E9b3CBBA901031f646B04e9fC9a2E3448B40335'
 
   const account = web3.eth.accounts.privateKeyToAccount(privateKey)
-  const [pair0] = dada[0]
-  const [pair1] = dada[1]
+  // const [pair0] = dada[0]
+  // const [pair1] = dada[1]
   
 
-  const {amountIn: amountIn0, amountOut: amountOut0, token0: token00, provider: provider0} = pair0.pair
-  const {amountIn: amountIn1, amountOut: amountOut1, token0: token01, provider: provider1} = pair1.pair
+  // const {amountIn: amountIn0, amountOut: amountOut0, token0: token00, provider: provider0} = pair0.pair
+  // const {amountIn: amountIn1, amountOut: amountOut1, token0: token01, provider: provider1} = pair1.pair
 
   let nonce = await web3.eth.getTransactionCount(address)
   let gasPrice = Number(await web3.eth.getGasPrice()) + 10000
   const contract = new web3.eth.Contract(abiaaaaa, addressRouter)
   const rawTransaction = {
     to: contract._address,
-    data: contract.methods.swapMulti([[
-      BigInt(amountIn0),
-      BigInt(amountOut0),
-      provider0,
-      token00,
-      address,
-      addressRouter
-    ], [
-      BigInt(amountIn1),
-      BigInt(amountOut1),
-      provider1,
-      token01,
-      addressRouter,
-      address
-    ]]).encodeABI(),
+    data: contract.methods.swapMulti(dada.dataSwap).encodeABI(),
     gasPrice: gasPrice,
     nonce: nonce,
-    gas: 600000
+    gas: 700000
   }
 
   const signedTransaction = await account.signTransaction(rawTransaction)
